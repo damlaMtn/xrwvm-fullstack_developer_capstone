@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .populate import initiate
 
 from .models import CarMake, CarModel
-from .restapis import get_request, analyze_review_sentiments, post_review
+from .restapis import get_request, analyze_review_sentiments
 
 
 # Get an instance of a logger
@@ -28,7 +28,8 @@ def get_cars(request):
     car_models = CarModel.objects.select_related("car_make")
     cars = []
     for car_model in car_models:
-        cars.append({"CarModel": car_model.name, "CarMake": car_model.car_make.name})
+        cars.append({"CarModel": car_model.name,
+                     "CarMake": car_model.car_make.name})
     return JsonResponse({"CarModels": cars})
 
 
@@ -48,12 +49,10 @@ def login_user(request):
         data = {"userName": username, "status": "Authenticated"}
     return JsonResponse(data)
 
-
 # Create a `logout_request` view to handle sign out request
-def logout(request):
-    data = {"userName": ""}
-    return JsonResponse(data)
-
+# def logout(request):
+#     data = {"userName": ""}
+#     return JsonResponse(data)
 
 # Create a `registration` view to handle sign up request
 @csrf_exempt
@@ -137,7 +136,9 @@ def add_review(request):
         data = json.loads(request.body)
         try:
             return JsonResponse({"status": 200})
-        except:
-            return JsonResponse({"status": 401, "message": "Error in posting review"})
+        except Exception as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+            return JsonResponse({"status": 401, 
+                                 "message": "Error in posting review"})
     else:
         return JsonResponse({"status": 403, "message": "Unauthorized"})
