@@ -1,13 +1,15 @@
-const mongoose = require('mongoose');
+/*jshint esversion: 6 */
+
+ mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
 const dealerships = new Schema({
-	id: {
+  id: {
     type: Number,
     required: true,
-	},
-	city: {
+  },
+  city: {
     type: String,
     required: true
   },
