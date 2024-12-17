@@ -1,6 +1,5 @@
 # Uncomment the required imports before adding the code
 from django.contrib.auth.models import User
-from django.contrib.auth import logout
 
 from django.http import JsonResponse
 from django.contrib.auth import login, authenticate
@@ -53,6 +52,7 @@ def login_user(request):
 # def logout(request):
 #     data = {"userName": ""}
 #     return JsonResponse(data)
+
 
 # Create a `registration` view to handle sign up request
 @csrf_exempt
@@ -132,8 +132,7 @@ def get_dealer_details(request, dealer_id):
 
 # Create a `add_review` view to submit a review
 def add_review(request):
-    if request.user.is_anonymous == False:
-        data = json.loads(request.body)
+    if request.user.is_anonymous is False:
         try:
             return JsonResponse({"status": 200})
         except Exception as err:
