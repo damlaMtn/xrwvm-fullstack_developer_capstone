@@ -103,46 +103,18 @@ def get_dealerships(request, state="All"):
     return JsonResponse({"status":200,"dealers":dealerships})
 
 # Create a `get_dealer_reviews` view to render the reviews of a dealer
-# def get_dealer_reviews(request, dealer_id):
-#     # if dealer id has been provided
-#     if(dealer_id):
-#         endpoint = "/fetchReviews/dealer/"+str(dealer_id)
-#         reviews = get_request(endpoint)
-#         for review_detail in reviews:
-#             response = analyze_review_sentiments(review_detail['review'])
-#             print(response)
-#             review_detail['sentiment'] = response['sentiment']
-#         return JsonResponse({"status":200,"reviews":reviews})
-#     else:
-#         return JsonResponse({"status":400,"message":"Bad Request"})
-
 def get_dealer_reviews(request, dealer_id):
-    try:
-        # Ensure dealer_id is provided
-        if dealer_id:
-            endpoint = f"/fetchReviews/dealer/{dealer_id}"
-            reviews = get_request(endpoint)
-            print(f"Fetched reviews: {reviews}")
-
-            # Ensure `reviews` is a valid iterable object
-            if not isinstance(reviews, list):
-                raise ValueError("Unexpected response format for reviews")
-            
-            for review_detail in reviews:
-                try:
-                    response = analyze_review_sentiments(review_detail.get('review', ''))
-                    print(response)
-                    review_detail['sentiment'] = response['sentiment']
-                except Exception as e:
-                    print(f"Error analyzing sentiment: {e}")
-                    review_detail['sentiment'] = "unknown"
-
-            return JsonResponse({"status": 200, "reviews": reviews})
-        else:
-            return JsonResponse({"status": 400, "message": "Bad Request"})
-    except Exception as e:
-        print(f"Error in get_dealer_reviews: {e}")
-        return JsonResponse({"status": 500, "message": "Internal Server Error"})
+    # if dealer id has been provided
+    if(dealer_id):
+        endpoint = "/fetchReviews/dealer/"+str(dealer_id)
+        reviews = get_request(endpoint)
+        for review_detail in reviews:
+            response = analyze_review_sentiments(review_detail['review'])
+            print(response)
+            review_detail['sentiment'] = response['sentiment']
+        return JsonResponse({"status":200,"reviews":reviews})
+    else:
+        return JsonResponse({"status":400,"message":"Bad Request"})
 
 
 # Create a `get_dealer_details` view to render the dealer details
@@ -155,26 +127,14 @@ def get_dealer_details(request, dealer_id):
         return JsonResponse({"status":400,"message":"Bad Request"})
 
 # Create a `add_review` view to submit a review
-@csrf_exempt
 def add_review(request):
-    if request.method == 'POST':
+    if(request.user.is_anonymous == False):
+        data = json.loads(request.body)
         try:
-            data = json.loads(request.body)
-            # Process review data
-            review_data = {
-                'name': data.get('name'),
-                'dealership': data.get('dealership'),
-                'review': data.get('review'),
-                'purchase': data.get('purchase'),
-                'purchase_date': data.get('purchase_date'),
-                'car_make': data.get('car_make'),
-                'car_model': data.get('car_model'),
-                'car_year': data.get('car_year'),
-            }
-            # Save the review data or whatever processing is needed
-            # For example: Review.objects.create(**review_data)
-            return JsonResponse({"status": 200, "message": "Review submitted successfully"})
-        except Exception as e:
-            return JsonResponse({"status": 500, "message": str(e)})
-    return JsonResponse({"status": 405, "message": "Method Not Allowed"})
+            response = post_review(data)
+            return JsonResponse({"status":200})
+        except:
+            return JsonResponse({"status":401,"message":"Error in posting review"})
+    else:
+        return JsonResponse({"status":403,"message":"Unauthorized"})
 

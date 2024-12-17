@@ -47,7 +47,7 @@ const PostReview = () => {
       "car_year": year,
     });
 
-    console.log("jsoninput", jsoninput);
+    console.log(jsoninput);
     const res = await fetch(review_url, {
       method: "POST",
       headers: {
@@ -57,8 +57,12 @@ const PostReview = () => {
   });
 
   const json = await res.json();
+  console.log("1", json);
   if (json.status === 200) {
       window.location.href = window.location.origin+"/dealer/"+id;
+  }
+  else{
+    alert("Failed to submit review", json.status);
   }
 
   }
